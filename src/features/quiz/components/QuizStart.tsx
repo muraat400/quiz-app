@@ -1,4 +1,4 @@
-import { useQuiz } from "../context/QuizContext";
+import { useQuiz } from '../context/useQuiz';
 import data from '../../../data/quiz-data.json';
 
 const QuizStart = () => {

@@ -1,5 +1,5 @@
 import './App.css'
-import { QuizProvider } from './features/quiz/context/QuizContext';
+import { QuizProvider } from './features/quiz/context/QuizProvider';
 import QuizStart from './features/quiz/components/QuizStart';
 
 function App() {
@@ -9,6 +9,4 @@ function App() {
     </QuizProvider>
   );
 }
-
-export default App
-
+export default App;
