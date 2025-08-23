@@ -19,7 +19,7 @@ const QuizQuestion = () => {
     );
     dispatch({ type: isCorrect ? 'ANSWER_CORRECT' : 'ANSWER_WRONG' });
   };
-
+  
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
       <h2>Question {state.currentIndex + 1}</h2>
