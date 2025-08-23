@@ -1,5 +1,6 @@
 import { useQuiz } from '../context/useQuiz';
 import data from '../../../data/quiz-data.json';
+import { QuizService } from '../services/QuizService';
 
 const QuizResult = () => {
   const { state, dispatch } = useQuiz();
@@ -8,7 +9,8 @@ const QuizResult = () => {
   const scorePercent = Math.round((state.correctAnswers / total) * 100);
 
   const restartQuiz = () => {
-    dispatch({ type: 'RESET', payload: data });
+    const questions = new QuizService(data).getQuestions();
+    dispatch({ type: 'RESET', payload: questions }); // ✅ QuizQuestion[]
   };
 
   return (
