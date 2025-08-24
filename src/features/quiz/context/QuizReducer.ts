@@ -8,11 +8,16 @@ export interface QuizState {
   completed: boolean;
   letter?: string;
   limit?: number;
+  answers: { [index: number]: string };
 }
 
 export type QuizAction =
   | { type: 'ANSWER_CORRECT' }
   | { type: 'ANSWER_WRONG' }
+  | { type: 'PREV_QUESTION' }
+  | { type: 'SKIP_QUESTION' }
+  | { type: 'COMPLETE_QUIZ' }
+  | { type: 'SELECT_ANSWER'; questionIndex: number; answer: string }
   | { type: 'RESET'; payload: QuizQuestion[]; letter?: string; limit?: number };
 
 // Initial state
@@ -23,7 +28,8 @@ export const quizInitialState: QuizState = {
   wrongAnswers: 0,
   completed: false,
   letter: undefined,
-  limit: undefined
+  limit: undefined,
+  answers: {}
 };
 
 export function quizReducer(state: QuizState, action: QuizAction): QuizState {
@@ -38,9 +44,30 @@ export function quizReducer(state: QuizState, action: QuizAction): QuizState {
     case 'ANSWER_WRONG':
       return {
         ...state,
-        currentIndex: state.currentIndex + 1,
         wrongAnswers: state.wrongAnswers + 1,
-        completed: state.currentIndex + 1 >= state.questions.length,
+      };
+    case 'PREV_QUESTION':
+      return {
+        ...state,
+        currentIndex: Math.max(0, state.currentIndex - 1),
+      };
+    case 'SKIP_QUESTION':
+      return {
+        ...state,
+        currentIndex: Math.min(state.questions.length - 1, state.currentIndex + 1),
+      };
+    case 'COMPLETE_QUIZ':
+      return {
+        ...state,
+        completed: true,
+      };
+    case 'SELECT_ANSWER':
+      return {
+        ...state,
+        answers: {
+          ...state.answers,
+          [action.questionIndex]: action.answer,
+        },
       };
     case 'RESET':
       return {
