@@ -9,8 +9,9 @@ const QuizResult = () => {
   const scorePercent = Math.round((state.correctAnswers / total) * 100);
 
   const restartQuiz = () => {
-    const questions = new QuizService(data).getQuestions();
-    dispatch({ type: 'RESET', payload: questions }); // ✅ QuizQuestion[]
+    const { letter, limit } = state;
+    const questions = new QuizService(data).getQuestions(limit, letter);
+    dispatch({ type: 'RESET', payload: questions, letter, limit }); // ✅ QuizQuestion[]
   };
 
   return (

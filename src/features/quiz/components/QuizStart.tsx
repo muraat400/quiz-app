@@ -11,7 +11,7 @@ const QuizStart = () => {
   const startQuiz = () => {
     const service = new QuizService(data);
     const questions = service.getQuestions(limit, letter);
-    dispatch({ type: 'RESET', payload: questions });
+    dispatch({ type: 'RESET', payload: questions, letter, limit });
   };
 
   return (

@@ -6,12 +6,14 @@ export interface QuizState {
   correctAnswers: number;
   wrongAnswers: number;
   completed: boolean;
+  letter?: string;
+  limit?: number;
 }
 
 export type QuizAction =
   | { type: 'ANSWER_CORRECT' }
   | { type: 'ANSWER_WRONG' }
-  | { type: 'RESET'; payload: QuizQuestion[] };
+  | { type: 'RESET'; payload: QuizQuestion[]; letter?: string; limit?: number };
 
 // Initial state
 export const quizInitialState: QuizState = {
@@ -20,6 +22,8 @@ export const quizInitialState: QuizState = {
   correctAnswers: 0,
   wrongAnswers: 0,
   completed: false,
+  letter: undefined,
+  limit: undefined
 };
 
 export function quizReducer(state: QuizState, action: QuizAction): QuizState {
@@ -42,6 +46,8 @@ export function quizReducer(state: QuizState, action: QuizAction): QuizState {
       return {
         ...quizInitialState,
         questions: action.payload,
+        letter: action.letter,
+        limit: action.limit
       };
     default:
       return state;
