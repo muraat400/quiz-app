@@ -5,11 +5,12 @@ import data from '../../../data/quiz-data.json';
 
 const QuizStart = () => {
   const { dispatch } = useQuiz();
-  const [letter, setLetter] = useState(''); // harf seçimi
+  const [letter, setLetter] = useState('');
+  const [limit, setLimit] = useState(10); // ✅ soru sayısı
 
   const startQuiz = () => {
     const service = new QuizService(data);
-    const questions = service.getQuestions(10, letter); // harfe göre filtrelenmiş
+    const questions = service.getQuestions(limit, letter);
     dispatch({ type: 'RESET', payload: questions });
   };
 
@@ -17,23 +18,40 @@ const QuizStart = () => {
     <div style={{ textAlign: 'center', marginTop: '4rem' }}>
       <h1>📚 Welcome To Quiz App!</h1>
 
-      <label>
-        Select a letter:
-        <select
-          value={letter}
-          onChange={(e) => setLetter(e.target.value)}
-          style={{ marginLeft: '8px' }}
-        >
-          <option value="">All</option>
-          {'abcdefghijklmnopqrstuvwxyz'.toUpperCase().split('').map((char) => (
-            <option key={char} value={char}>
-              {char}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div style={{ marginBottom: '1rem' }}>
+        <label>
+          Select a letter:
+          <select
+            value={letter}
+            onChange={(e) => setLetter(e.target.value)}
+            style={{ marginLeft: '8px' }}
+          >
+            <option value="">All</option>
+            {'abcdefghijklmnopqrstuvwxyz'.toUpperCase().split('').map((char) => (
+              <option key={char} value={char}>
+                {char}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
 
-      <br /><br />
+      <div style={{ marginBottom: '1rem' }}>
+        <label>
+          Number of questions:
+          <select
+            value={limit}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            style={{ marginLeft: '8px' }}
+          >
+            {[10, 20, 50, 100].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
 
       <button onClick={startQuiz}>Start Quiz</button>
     </div>
