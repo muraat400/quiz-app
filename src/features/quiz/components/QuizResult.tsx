@@ -28,10 +28,24 @@ const QuizResult = () => {
           borderRadius: '5px',
           backgroundColor: '#4CAF50',
           color: 'white',
-          cursor: 'pointer',
+          cursor: 'pointer'
         }}
       >
         Restart Quiz
+      </button>
+      <br/>
+      <button
+        onClick={() => dispatch({ type: 'RESET', payload: [] })}
+        style={{
+          marginTop: '1rem',
+          padding: '0.5rem 1rem',
+          borderRadius: '5px',
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          cursor: 'pointer'
+        }}
+      >
+        Return to Home
       </button>
     </div>
   );

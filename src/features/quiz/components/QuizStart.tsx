@@ -45,7 +45,7 @@ const QuizStart = () => {
             style={{ marginLeft: '8px' }}
           >
             <option value="">All</option>
-            {[50, 100, 150, 200, 250].map((num) => (
+            {[10,50, 100, 150, 200, 250].map((num) => (
               <option key={num} value={num}>
                 {num}
               </option>
