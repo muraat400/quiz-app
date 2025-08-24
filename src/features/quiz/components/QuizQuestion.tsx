@@ -33,7 +33,8 @@ const QuizQuestion = () => {
             style={{
               margin: '0.5rem',
               padding: '0.5rem 1rem',
-              backgroundColor: '#eee',
+              backgroundColor: '#4a90e2',
+              color: '#fff',
               borderRadius: '5px',
               cursor: 'pointer',
             }}

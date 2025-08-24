@@ -44,8 +44,24 @@ export class QuizService {
     return array.sort(() => Math.random() - 0.5);
   }
 
-  getQuestions(): QuizQuestion[] {
-    return this.questions;
+  getQuestions(limit?: number, startsWithLetter?: string): QuizQuestion[] {
+    let filtered = this.rawWords;
+
+    if (startsWithLetter) {
+      filtered = filtered.filter(word =>
+        word.English.toLowerCase().startsWith(startsWithLetter.toLowerCase())
+      );
+    }
+
+    const selected = limit ? this.shuffle(filtered).slice(0, limit) : this.shuffle(filtered);
+
+    return selected.map((word) => {
+      const correctAnswer = word.Turkish[0];
+      const wrongOptions = this.getRandomWrongOptions(correctAnswer, 3);
+      const options = this.shuffle([correctAnswer, ...wrongOptions]);
+
+      return { word, options, correctAnswer };
+    });
   }
 
   static isAnswerCorrect(selected: string, correct: string): boolean {
