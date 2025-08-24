@@ -22,7 +22,7 @@ const QuizQuestion = () => {
   
   return (
     <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h2>Question {state.currentIndex + 1}</h2>
+      <h2>Question {state.currentIndex + 1} of {state.questions.length}</h2>
       <h3>{current.word.English}</h3>
 
       <div style={{ marginTop: '1rem' }}>
