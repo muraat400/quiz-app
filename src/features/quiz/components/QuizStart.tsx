@@ -44,7 +44,8 @@ const QuizStart = () => {
             onChange={(e) => setLimit(Number(e.target.value))}
             style={{ marginLeft: '8px' }}
           >
-            {[10, 20, 50, 100].map((num) => (
+            <option value="">All</option>
+            {[50, 100, 150, 200, 250].map((num) => (
               <option key={num} value={num}>
                 {num}
               </option>
