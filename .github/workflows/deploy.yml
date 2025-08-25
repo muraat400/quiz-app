@@ -1,8 +1,8 @@
-name: Deploy React app to GitHub Pages
+name: Test, Build & Deploy (GitHub Pages)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]         # ana dalın farklıysa değiştir
   workflow_dispatch:
 
 permissions:
@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # Rollup'ı native paketi yerine JS sürümüne zorla (npm optional deps bug'ını by-pass)
+      # Rollup'ın native opsiyonellerine takılmamak için JS sürümünü kullan
       ROLLUP_USE_NODE_JS: true
 
     steps:
@@ -37,23 +37,35 @@ jobs:
       - name: Install dependencies (with fallback)
         run: |
           set -e
-          # İlk deneme: deterministic kurulum
           npm ci || {
             echo "npm ci failed; applying workaround..."
             rm -rf node_modules package-lock.json
             npm install --no-audit --no-fund
           }
 
-      # CRA ise (vite.config.* yok)
+      # ---- TEST + COVERAGE ----
+      - name: Run tests (with coverage)
+        run: npm test -- --runInBand --ci --coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      # ---- BUILD ----
+      # CRA ise (vite.config.* yoksa)
       - name: Build (CRA)
         if: ${{ hashFiles('vite.config.ts') == '' && hashFiles('vite.config.js') == '' }}
         run: npm run build
 
-      # Vite ise (vite.config.* var)
+      # Vite ise (vite.config.* varsa)
       - name: Build (Vite)
         if: ${{ hashFiles('vite.config.ts') != '' || hashFiles('vite.config.js') != '' }}
         run: npm run build
 
+      # ---- ARTIFACT (Pages) ----
       - name: Upload artifact (CRA build/)
         if: ${{ hashFiles('vite.config.ts') == '' && hashFiles('vite.config.js') == '' }}
         uses: actions/upload-pages-artifact@v3
