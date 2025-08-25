@@ -6,7 +6,7 @@ import data from '../../../data/quiz-data.json';
 const QuizStart = () => {
   const { dispatch } = useQuiz();
   const [letter, setLetter] = useState('');
-  const [limit, setLimit] = useState(10); // ✅ soru sayısı
+  const [limit, setLimit] = useState(100);
 
   const startQuiz = () => {
     const service = new QuizService(data);
@@ -45,7 +45,7 @@ const QuizStart = () => {
             style={{ marginLeft: '8px' }}
           >
             <option value="">All</option>
-            {[50, 100, 150, 200, 250].map((num) => (
+            {[50, 100, 150, 200, 250, 300].map((num) => (
               <option key={num} value={num}>
                 {num}
               </option>

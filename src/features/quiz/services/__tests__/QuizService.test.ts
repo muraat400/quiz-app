@@ -54,15 +54,28 @@ describe('QuizService', () => {
         });
     });
 
-    it('should shuffle options randomly', () => {
-        const service1 = new QuizService(mockWords);
-        const service2 = new QuizService(mockWords);
+    it('should shuffle options randomly (robust, non-flaky)', () => {
+        const service = new QuizService(mockWords);
 
-        const q1Options = service1.getQuestions()[0].options;
-        const q2Options = service2.getQuestions()[0].options;
+        const variants = new Set<string>();
+        const runs = 30;
 
-        // There's a small chance this could fail randomly if the shuffle gives same result
-        expect(q1Options).not.toEqual(q2Options);
+        for (let i = 0; i < runs; i++) {
+            const qs = service.getQuestions(1);
+            expect(qs.length).toBe(1);
+
+            const opts = qs[0].options;
+            // 4 seçenek olmalı
+            expect(opts).toHaveLength(4);
+
+            expect(new Set(opts).size).toBe(4);
+
+            expect(opts).toContain(qs[0].correctAnswer);
+
+            variants.add(JSON.stringify(opts));
+        }
+
+        expect(variants.size).toBeGreaterThan(1);
     });
 
     it('should correctly evaluate answers using isAnswerCorrect()', () => {

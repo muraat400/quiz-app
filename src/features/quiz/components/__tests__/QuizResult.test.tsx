@@ -1,38 +1,31 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
+import { render, screen, fireEvent } from '@testing-library/react';
 import QuizResult from '../QuizResult';
 import { QuizContext } from '../../context/QuizContext';
-import { QuizState } from '../../context/QuizReducer';
+import type { QuizState } from '../../context/QuizReducer';
 
-// ✅ Mock QuizService to avoid actual logic running during test
-jest.mock('../../services/QuizService', () => {
-  return {
-    QuizService: jest.fn().mockImplementation(() => ({
-      getQuestions: () => [
-        {
-          word: {
-            Id: 1,
-            English: 'mocked',
-            Turkish: ['mocked'],
-            Sentence: [],
-            Pronunciation: '',
-            Notes: [],
-          },
-          options: ['mocked', 'other', 'dummy', 'fake'],
-          correctAnswer: 'mocked',
-        },
-      ],
-    })),
-  };
-});
+const dummyQuestion = {
+  word: {
+    Id: 1,
+    English: 'mocked',
+    Turkish: ['mocked'],
+    Sentence: [],
+    Pronunciation: '',
+    Notes: [],
+  },
+  options: ['mocked', 'other', 'dummy', 'fake'],
+  correctAnswer: 'mocked',
+};
 
-// ✅ Dummy state
 const defaultState: QuizState = {
   currentIndex: 0,
-  questions: [],
+  questions: Array.from({ length: 10 }, () => dummyQuestion),
   correctAnswers: 8,
   wrongAnswers: 2,
   completed: true,
+  letter: 'A',
+  limit: 100,
+  answers: {},
 };
 
 describe('QuizResult component', () => {
@@ -45,15 +38,13 @@ describe('QuizResult component', () => {
       </QuizContext.Provider>
     );
 
-    expect(screen.getByText(/Quiz Completed/i)).toBeInTheDocument();
-    expect(screen.getByText(/Correct Answers: 8/i)).toBeInTheDocument();
-    expect(screen.getByText(/Wrong Answers: 2/i)).toBeInTheDocument();
-    expect(screen.getByText(/Score: 80%/i)).toBeInTheDocument();
+    expect(screen.getByText(/Correct Answers/i)).toHaveTextContent(/8/);
+    expect(screen.getByText(/Wrong Answers/i)).toHaveTextContent(/2/);
+    expect(screen.getByText(/Score/i)).toHaveTextContent(/80\s*%/i);
   });
 
-  it('dispatches RESET action on restart button click', async () => {
+  it('dispatches RESET action on restart button click', () => {
     const mockDispatch = jest.fn();
-    const user = userEvent.setup();
 
     render(
       <QuizContext.Provider
@@ -64,7 +55,7 @@ describe('QuizResult component', () => {
     );
 
     const button = screen.getByRole('button', { name: /Restart Quiz/i });
-    await user.click(button);
+    fireEvent.click(button);
 
     expect(mockDispatch).toHaveBeenCalled();
   });

@@ -1,41 +1,99 @@
-import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { render, screen, fireEvent } from '@testing-library/react';
 import QuizStart from '../QuizStart';
 import { QuizContext } from '../../context/QuizContext';
-import { QuizState } from '../../context/QuizReducer';
+import type { QuizQuestion } from '../../models/QuizQuestion';
 
-// Minimal mock state
-const mockState: QuizState = {
-    currentIndex: 0,
-    questions: [],
-    correctAnswers: 0,
-    wrongAnswers: 0,
-    completed: false,
-};
+// QuizService named export ise:
+jest.mock('../../services/QuizService', () => ({
+  QuizService: jest.fn().mockImplementation(() => ({
+    getQuestions: (): QuizQuestion[] => [
+      {
+        word: {
+          Id: 1,
+          English: 'test',
+          Turkish: ['test'],
+          Sentence: [],
+          Pronunciation: '',
+          Notes: [],
+        },
+        options: ['test', 'wrong1', 'wrong2', 'wrong3'],
+        correctAnswer: 'test',
+      },
+    ],
+  })),
+}));
+
+const mockDispatch = jest.fn();
+
+const renderWithContext = () =>
+  render(
+    <QuizContext.Provider
+      value={{
+        state: {
+          currentIndex: 0,
+          questions: [],
+          correctAnswers: 0,
+          wrongAnswers: 0,
+          completed: false,
+          letter: 'A',
+          limit: 100, // component default'u da 100
+          answers: {},
+        },
+        dispatch: mockDispatch,
+      }}
+    >
+      <QuizStart />
+    </QuizContext.Provider>
+  );
 
 describe('QuizStart component', () => {
-    it('renders welcome message and button', () => {
-        render(
-            <QuizContext.Provider value={{ state: mockState, dispatch: jest.fn() }}>
-                <QuizStart />
-            </QuizContext.Provider>
-        );
+  beforeEach(() => {
+    mockDispatch.mockClear();
+  });
 
-        expect(screen.getByText(/Welcome To Quiz App/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Start Quiz/i })).toBeInTheDocument();
-    });
+  it('renders UI elements correctly', () => {
+    renderWithContext();
 
-    it('dispatches RESET action when Start Quiz button is clicked', () => {
-        const mockDispatch = jest.fn();
+    expect(screen.getByText(/Welcome To Quiz App/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Select a letter/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Number of questions/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Start Quiz/i })
+    ).toBeInTheDocument();
+  });
 
-        render(
-            <QuizContext.Provider value={{ state: mockState, dispatch: mockDispatch }}>
-                <QuizStart />
-            </QuizContext.Provider>
-        );
+  it('allows selecting a letter and number of questions (select)', () => {
+    renderWithContext();
 
-        const button = screen.getByRole('button', { name: /Start Quiz/i });
-        button.click();
+    const letterSelect = screen.getByLabelText(/Select a letter/i);
+    fireEvent.change(letterSelect, { target: { value: 'B' } });
+    expect((letterSelect as HTMLSelectElement).value).toBe('B');
 
-        expect(mockDispatch).toHaveBeenCalled();
-    });
+    const limitSelect = screen.getByLabelText(/Number of questions/i);
+    fireEvent.change(limitSelect, { target: { value: '50' } });
+    expect((limitSelect as HTMLSelectElement).value).toBe('50');
+  });
+
+  it('dispatches RESET with chosen letter and limit on Start', () => {
+    renderWithContext();
+
+    const letterSelect = screen.getByLabelText(/Select a letter/i);
+    fireEvent.change(letterSelect, { target: { value: 'A' } });
+
+    const limitSelect = screen.getByLabelText(/Number of questions/i);
+    fireEvent.change(limitSelect, { target: { value: '50' } });
+
+    const startButton = screen.getByRole('button', { name: /Start Quiz/i });
+    fireEvent.click(startButton);
+
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'RESET',
+        payload: expect.any(Array),
+        letter: 'A',
+        limit: 50, // ✅ artık select'ten gelen geçerli değer
+      })
+    );
+  });
 });

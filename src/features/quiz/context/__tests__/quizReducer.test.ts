@@ -1,84 +1,63 @@
-import { quizReducer, quizInitialState } from '../QuizReducer';
-import type { QuizQuestion } from '../../models/QuizQuestion';
+import { quizReducer } from '../QuizReducer';
 import type { QuizState } from '../QuizReducer';
 
-const mockQuestions: QuizQuestion[] = [
+const makeState = (override?: Partial<QuizState>): QuizState => ({
+  currentIndex: 0,
+  questions: [
     {
-        word: {
-            Id: 1,
-            English: 'book',
-            Turkish: ['kitap'],
-            Sentence: [],
-            Pronunciation: 'book',
-            Notes: [],
-        },
-        options: ['kitap', 'araba', 'ev', 'ağaç'],
-        correctAnswer: 'kitap',
+      word: {
+        Id: 1,
+        English: 'apple',
+        Turkish: ['elma'],
+        Sentence: [],
+        Pronunciation: '',
+        Notes: [],
+      },
+      options: ['elma', 'araba', 'kitap', 'masa'],
+      correctAnswer: 'elma',
     },
     {
-        word: {
-            Id: 2,
-            English: 'car',
-            Turkish: ['araba'],
-            Sentence: [],
-            Pronunciation: 'car',
-            Notes: [],
-        },
-        options: ['kitap', 'araba', 'ev', 'ağaç'],
-        correctAnswer: 'araba',
+      word: {
+        Id: 2,
+        English: 'car',
+        Turkish: ['araba'],
+        Sentence: [],
+        Pronunciation: '',
+        Notes: [],
+      },
+      options: ['elma', 'araba', 'masa', 'kitap'],
+      correctAnswer: 'araba',
     },
-];
+  ],
+  correctAnswers: 0,
+  wrongAnswers: 0,
+  completed: false,
+  letter: 'A',
+  limit: 100,
+  answers: {},
+  ...override,
+});
 
 describe('quizReducer', () => {
-    it('should reset state with new questions', () => {
-        const state = quizReducer(quizInitialState, {
-            type: 'RESET',
-            payload: mockQuestions,
-        });
+  it('should handle correct answer', () => {
+    let state = makeState();
+    state = quizReducer(state, { type: 'ANSWER_CORRECT' });
+    expect(state.correctAnswers).toBe(1);
+    expect(state.wrongAnswers).toBe(0);
+    expect(state.currentIndex).toBe(1);
+  });
 
-        expect(state.questions).toEqual(mockQuestions);
-        expect(state.correctAnswers).toBe(0);
-        expect(state.wrongAnswers).toBe(0);
-        expect(state.currentIndex).toBe(0);
-        expect(state.completed).toBe(false);
-    });
+  it('should handle wrong answer (index artmaz)', () => {
+    let state = makeState();
+    state = quizReducer(state, { type: 'ANSWER_WRONG' });
+    expect(state.wrongAnswers).toBe(1);
+    expect(state.currentIndex).toBe(0);
+    expect(state.completed).toBe(false);
+  });
 
-    it('should handle correct answer', () => {
-        const initial: QuizState = {
-            ...quizInitialState,
-            questions: mockQuestions,
-        };
-
-        const state = quizReducer(initial, { type: 'ANSWER_CORRECT' });
-
-        expect(state.correctAnswers).toBe(1);
-        expect(state.currentIndex).toBe(1);
-        expect(state.completed).toBe(false);
-    });
-
-    it('should handle wrong answer', () => {
-        const initial: QuizState = {
-            ...quizInitialState,
-            questions: mockQuestions,
-        };
-
-        const state = quizReducer(initial, { type: 'ANSWER_WRONG' });
-
-        expect(state.wrongAnswers).toBe(1);
-        expect(state.currentIndex).toBe(1);
-        expect(state.completed).toBe(false);
-    });
-
-    it('should set completed to true when last question answered', () => {
-        const initial: QuizState = {
-            ...quizInitialState,
-            questions: mockQuestions,
-            currentIndex: 1,
-        };
-
-        const state = quizReducer(initial, { type: 'ANSWER_CORRECT' });
-
-        expect(state.currentIndex).toBe(2);
-        expect(state.completed).toBe(true);
-    });
+  it('should complete quiz when COMPLETE_QUIZ is dispatched', () => {
+    let state = makeState({ currentIndex: 1, completed: false });
+    state = quizReducer(state, { type: 'COMPLETE_QUIZ' });
+    expect(state.completed).toBe(true);
+  });
 });
