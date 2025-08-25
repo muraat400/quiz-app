@@ -2,7 +2,7 @@ name: Deploy React app to GitHub Pages
 
 on:
   push:
-    branches: [ main ]  # ana dalın 'main' değilse değiştir
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -29,26 +29,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # CRA ise:
+      # CRA ise (vite.config.* yok)
       - name: Build (CRA)
-        if: ${{ !exists('vite.config.ts') && !exists('vite.config.js') }}
+        if: ${{ hashFiles('vite.config.ts') == '' && hashFiles('vite.config.js') == '' }}
         run: npm run build
 
-      # Vite ise BASE ayarıyla:
-      - name: Set base for Vite (env)
-        if: ${{ exists('vite.config.ts') || exists('vite.config.js') }}
-        run: echo "VITE_BASE=/$GITHUB_REPOSITORY##*/"/ >> $GITHUB_ENV
-
+      # Vite ise (vite.config.* var)
       - name: Build (Vite)
-        if: ${{ exists('vite.config.ts') || exists('vite.config.js') }}
-        run: |
-          # vite.config.* dosyanda base'i env'den okuyacak şekilde ayarla (aşağıdaki notlara bak)
-          npm run build
+        if: ${{ hashFiles('vite.config.ts') != '' || hashFiles('vite.config.js') != '' }}
+        run: npm run build
 
-      - name: Upload artifact
+      # CRA çıktısını yükle
+      - name: Upload artifact (CRA build/)
+        if: ${{ hashFiles('vite.config.ts') == '' && hashFiles('vite.config.js') == '' }}
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build  # Vite kullanıyorsan ./dist
+          path: ./build
+
+      # Vite çıktısını yükle
+      - name: Upload artifact (Vite dist/)
+        if: ${{ hashFiles('vite.config.ts') != '' || hashFiles('vite.config.js') != '' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
   deploy:
     needs: build
