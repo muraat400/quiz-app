@@ -32,10 +32,11 @@ export class QuizService {
 
   // Get random wrong translations from other words
   private getRandomWrongOptions(correct: string, count: number): string[] {
-    const pool = this.rawWords
-      .map((w) => w.Turkish[0])
-      .filter((t) => t !== correct);
-    const shuffled = pool.sort(() => Math.random() - 0.5);
+    const wrongPool = this.rawWords
+      .flatMap((w) => w.Turkish)
+      .filter((opt) => opt !== correct);
+
+    const shuffled = this.shuffle(wrongPool);
     return shuffled.slice(0, count);
   }
 
@@ -44,7 +45,7 @@ export class QuizService {
     return array.sort(() => Math.random() - 0.5);
   }
 
-  getQuestions(limit?: number, startsWithLetter?: string): QuizQuestion[] {
+  getQuestions(limit: number = 500, startsWithLetter?: string): QuizQuestion[] {
     let filtered = this.rawWords;
 
     if (startsWithLetter) {
