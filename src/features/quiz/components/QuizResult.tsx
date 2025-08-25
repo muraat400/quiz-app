@@ -5,8 +5,10 @@ import { QuizService } from '../services/QuizService';
 const QuizResult = () => {
   const { state, dispatch } = useQuiz();
 
-  const total = state.correctAnswers + state.wrongAnswers;
+  const total = state.questions.length;
   const scorePercent = Math.round((state.correctAnswers / total) * 100);
+  const answeredCount = Object.keys(state.answers).length;
+  const skipped = state.questions.length - answeredCount;
 
   const restartQuiz = () => {
     const { letter, limit } = state;
@@ -19,6 +21,7 @@ const QuizResult = () => {
       <h2>🎉 Quiz Completed!</h2>
       <p>✅ Correct Answers: {state.correctAnswers}</p>
       <p>❌ Wrong Answers: {state.wrongAnswers}</p>
+      <p>🚫 Skipped Questions: {skipped}</p>
       <p>📊 Score: {scorePercent}%</p>
 
       <button
@@ -34,7 +37,7 @@ const QuizResult = () => {
       >
         Restart Quiz
       </button>
-      <br/>
+      <br />
       <button
         onClick={() => dispatch({ type: 'RESET', payload: [] })}
         style={{
