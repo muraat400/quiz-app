@@ -12,7 +12,7 @@ const QuizQuestion = () => {
   useEffect(() => {
     setSelectedOption(state.answers[state.currentIndex] || null);
     setAnswerRevealed(false);
-  }, [state.currentIndex]);
+  }, [state.currentIndex, state.answers]);
 
   const handleAnswer = (option: string) => {
     if (selectedOption || answerRevealed) return;
