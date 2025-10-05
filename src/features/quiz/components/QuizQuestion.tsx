@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useQuiz } from '../context/useQuiz';
+import { Word } from '../models/Word';
 
 const QuizQuestion = () => {
   const { state, dispatch } = useQuiz();
   const currentQuestion = state.questions[state.currentIndex];
-
+  
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answerRevealed, setAnswerRevealed] = useState(false);
+  const [showDetailVisible, setShowDetailVisible] = useState(false);
 
   // Set selected option from global state (persisted answers)
   useEffect(() => {
     setSelectedOption(state.answers[state.currentIndex] || null);
     setAnswerRevealed(false);
+    setShowDetailVisible(false);
   }, [state.currentIndex, state.answers]);
 
   const handleAnswer = (option: string) => {
@@ -67,7 +70,7 @@ const QuizQuestion = () => {
       <h2>
         Question {state.currentIndex + 1} of {state.questions.length}
       </h2>
-      <h3>{currentQuestion.word.English}</h3>
+      <h3>{currentQuestion.word.English} ({currentQuestion.word.Pronunciation})</h3>
 
       <div>
         {currentQuestion.options.map((option) => (
@@ -107,6 +110,38 @@ const QuizQuestion = () => {
           ➡ Next
         </button>
       </div>
+
+      <div style={{ marginTop: '2rem' }}>
+        <button
+          onClick={() => setShowDetailVisible((prev) => !prev)}
+        >
+          {showDetailVisible ? 'Hide Detail' : 'Show Detail'}
+        </button>
+      </div>
+
+      {showDetailVisible && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <h3>Details:</h3>
+
+          {currentQuestion.word.Turkish.map((detail, i) => (
+            <span key={i} style={{ fontWeight: 'bold', fontSize: '20px' }}>
+              {detail},{' '}
+            </span>
+          ))}
+
+          {currentQuestion.word.Sentence.map((detail, i) => (
+            <div key={i}>
+              <h3>{detail.SentenceEn}</h3>
+              <h3>{detail.SentenceTr}</h3>
+            </div>
+          ))}
+
+          {currentQuestion.word.Notes.map((detail, i) => (
+            <h3 key={i}>{detail}</h3>
+          ))}
+        </div>
+      )}
+
     </div>
   );
 };
