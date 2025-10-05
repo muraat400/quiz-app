@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useQuiz } from '../context/useQuiz';
-import { Word } from '../models/Word';
 
 const QuizQuestion = () => {
   const { state, dispatch } = useQuiz();
